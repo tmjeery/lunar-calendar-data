@@ -1,33 +1,33 @@
 const fs = require("fs");
 const path = require("path");
-const { Lunar } = require("lunar-javascript");
+const { Lunar, Solar } = require("lunar-javascript");
 
-const START_YEAR = new Date().getFullYear();
-const END_YEAR = START_YEAR + 5;
-
-const ROOT = process.env.GITHUB_WORKSPACE || path.join(__dirname, "..");
-const OUTFILE = path.join(ROOT, "lunar_solar.json");
+const START_YEAR = 2026;
+const END_YEAR = 2031;
+const OUTFILE = path.join(__dirname, "..", "lunar_solar.json");
 
 let result = {};
 
 for (let year = START_YEAR; year <= END_YEAR; year++) {
   result[year] = {};
 
-  for (let month = 1; month <= 12; month++) {
-    for (let day = 1; day <= 30; day++) {
+  for (let lunarMonth = 1; lunarMonth <= 12; lunarMonth++) {
+    for (let lunarDay = 1; lunarDay <= 30; lunarDay++) {
       try {
-        const lunar = Lunar.fromYmd(year, month, day);
-        if (lunar.isLeap()) continue;
-        // 保证月份、日期匹配
-        if (lunar.getMonth() !== month || lunar.getDay() !== day) continue;
+        const lunar = Lunar.fromYmd(year, lunarMonth, lunarDay);
+        if (lunar.isLeap()) continue; // 跳过闰月
 
         const solar = lunar.getSolar();
-        const key = `${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+        // 验证 lunar 转 solar 再转回 lunar 是否匹配
+        const checkLunar = solar.getLunar();
+        if (checkLunar.getMonth() !== lunarMonth || checkLunar.getDay() !== lunarDay) continue;
+
+        const key = `${String(lunarMonth).padStart(2, "0")}-${String(lunarDay).padStart(2, "0")}`;
         const value = `${solar.getYear()}-${solar.getMonth()}-${solar.getDay()}`;
         result[year][key] = value;
       } catch (err) {
-        // 打印错误，方便调试
-        console.log(`Skip invalid date: ${year}-${month}-${day} => ${err.message}`);
+        // 忽略无效日期
+        // console.log(`skip ${year}-${lunarMonth}-${lunarDay} => ${err.message}`);
       }
     }
   }
