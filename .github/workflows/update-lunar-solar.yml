@@ -1,8 +1,17 @@
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:                # 添加权限声明
+      contents: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
 name: Update Lunar-Solar
 
 on:
   schedule:
-    - cron: "0 0 * * *"  # 每天 00:00 执行
+    - cron: "0 2 * * *"  # 每天 00:00 执行
   workflow_dispatch:    # 支持手动触发
 
 jobs:
