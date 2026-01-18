@@ -1,18 +1,19 @@
-name: Update Lunar Solar
+name: Update Lunar-Solar
 
 on:
   schedule:
-    - cron: "0 2 * * *" # 每天凌晨 2 点更新
-  workflow_dispatch:
+    - cron: "0 0 * * *"  # 每天 00:00 执行
+  workflow_dispatch:    # 支持手动触发
 
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Setup Node.js
+      - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
           node-version: "18"
@@ -23,10 +24,10 @@ jobs:
       - name: Generate lunar_solar.json
         run: node scripts/gen_lunar_solar.js
 
-      - name: Commit and push lunar_solar.json
+      - name: Commit and Push if changed
         run: |
           git config user.name "github-actions"
-          git config user.email "github-actions@github.com"
+          git config user.email "github-actions@users.noreply.github.com"
           git add lunar_solar.json
-          git commit -m "自动更新 lunar_solar.json [skip ci]" || echo "No changes to commit"
+          git diff --cached --quiet || git commit -m "Update lunar_solar.json [skip ci]"
           git push
