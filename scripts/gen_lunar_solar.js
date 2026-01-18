@@ -25,6 +25,11 @@ for (let year = START_YEAR; year <= END_YEAR; year++) {
     }
   }
 }
+const path = require("path");
 
-fs.writeFileSync("lunar_solar.json", JSON.stringify(result, null, 2));
+fs.writeFileSync(
+  path.join(__dirname, "..", "lunar_solar.json"),
+  JSON.stringify(result, null, 2)
+);
+
 console.log("done");
