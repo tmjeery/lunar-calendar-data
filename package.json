@@ -1,0 +1,9 @@
+{
+  "name": "lunar-calendar-data",
+  "version": "1.0.0",
+  "description": "Auto-generated lunar to solar mapping",
+  "license": "MIT",
+  "dependencies": {
+    "lunar-javascript": "^1.7.2"
+  }
+}
