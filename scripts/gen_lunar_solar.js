@@ -1,3 +1,6 @@
+const path = require("path");
+const ROOT = process.env.GITHUB_WORKSPACE || path.join(__dirname, "..");
+
 const fs = require("fs");
 const { Lunar } = require("lunar-javascript");
 
@@ -28,8 +31,8 @@ for (let year = START_YEAR; year <= END_YEAR; year++) {
 const path = require("path");
 
 fs.writeFileSync(
-  path.join(__dirname, "..", "lunar_solar.json"),
+  path.join(ROOT, "lunar_solar.json"),
   JSON.stringify(result, null, 2)
 );
+console.log("WRITE TO:", path.join(ROOT, "lunar_solar.json"));
 
-console.log("done");
