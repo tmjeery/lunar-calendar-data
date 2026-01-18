@@ -3,7 +3,7 @@ const path = require("path");
 const { Solar, Lunar } = require("lunar-javascript");
 
 const START_YEAR = new Date().getFullYear();
-const END_YEAR = START_YEAR + 5;
+const END_YEAR = START_YEAR + 3;
 
 let result = {};
 
