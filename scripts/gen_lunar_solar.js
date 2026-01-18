@@ -1,11 +1,12 @@
-const path = require("path");
-const ROOT = process.env.GITHUB_WORKSPACE || path.join(__dirname, "..");
-
 const fs = require("fs");
+const path = require("path");
 const { Lunar } = require("lunar-javascript");
 
 const START_YEAR = new Date().getFullYear();
 const END_YEAR = START_YEAR + 5;
+
+const ROOT = process.env.GITHUB_WORKSPACE || path.join(__dirname, "..");
+const OUTFILE = path.join(ROOT, "lunar_solar.json");
 
 let result = {};
 
@@ -17,22 +18,20 @@ for (let year = START_YEAR; year <= END_YEAR; year++) {
       try {
         const lunar = Lunar.fromYmd(year, month, day);
         if (lunar.isLeap()) continue;
+        // 保证月份、日期匹配
         if (lunar.getMonth() !== month || lunar.getDay() !== day) continue;
 
         const solar = lunar.getSolar();
         const key = `${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
         const value = `${solar.getYear()}-${solar.getMonth()}-${solar.getDay()}`;
-
         result[year][key] = value;
-      } catch (_) {}
+      } catch (err) {
+        // 打印错误，方便调试
+        console.log(`Skip invalid date: ${year}-${month}-${day} => ${err.message}`);
+      }
     }
   }
 }
-const path = require("path");
 
-fs.writeFileSync(
-  path.join(ROOT, "lunar_solar.json"),
-  JSON.stringify(result, null, 2)
-);
-console.log("WRITE TO:", path.join(ROOT, "lunar_solar.json"));
-
+fs.writeFileSync(OUTFILE, JSON.stringify(result, null, 2), "utf-8");
+console.log("DONE, FILE:", OUTFILE);
