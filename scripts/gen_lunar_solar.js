@@ -2,6 +2,7 @@ const fs = require("fs");
 const path = require("path");
 const { Lunar } = require("lunar-javascript");
 
+// 最近 6 年
 const START_YEAR = new Date().getFullYear();
 const END_YEAR = START_YEAR + 5;
 
@@ -10,13 +11,12 @@ let result = {};
 for (let year = START_YEAR; year <= END_YEAR; year++) {
   result[year] = {};
 
-  // 遍历农历月份
   for (let month = 1; month <= 12; month++) {
-    const lunarMonthDays = Lunar.getMonthDays(year, month); // 获取该农历月天数
+    const monthDays = Lunar.getMonthDays(year, month); // 获取该农历月的天数
 
-    for (let day = 1; day <= lunarMonthDays; day++) {
+    for (let day = 1; day <= monthDays; day++) {
       try {
-        const lunar = Lunar.fromYmd(year, month, day);
+        const lunar = Lunar.fromYmd(year, month, day); // 农历年月日
         if (lunar.isLeap()) continue; // 跳过闰月
 
         const solar = lunar.getSolar();
@@ -24,8 +24,8 @@ for (let year = START_YEAR; year <= END_YEAR; year++) {
         const value = `${solar.getYear()}-${solar.getMonth()}-${solar.getDay()}`;
 
         result[year][key] = value;
-      } catch (e) {
-        // 超出日期范围就跳过
+      } catch (err) {
+        // 超出日期范围或其他错误跳过
         continue;
       }
     }
