@@ -12,25 +12,20 @@ for (let year = START_YEAR; year <= END_YEAR; year++) {
 
   // 遍历农历月份
   for (let month = 1; month <= 12; month++) {
-    // 遍历农历日
-    for (let day = 1; day <= 30; day++) {
+    const lunarMonthDays = Lunar.getMonthDays(year, month); // 获取该农历月天数
+
+    for (let day = 1; day <= lunarMonthDays; day++) {
       try {
         const lunar = Lunar.fromYmd(year, month, day);
+        if (lunar.isLeap()) continue; // 跳过闰月
 
-        // 跳过闰月
-        if (lunar.isLeap()) continue;
-
-        // 获取对应公历日期
         const solar = lunar.getSolar();
-
-        // 农历 key
         const key = `${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
-        // 公历 value
         const value = `${solar.getYear()}-${solar.getMonth()}-${solar.getDay()}`;
 
         result[year][key] = value;
       } catch (e) {
-        // 日超出月份范围就跳过
+        // 超出日期范围就跳过
         continue;
       }
     }
