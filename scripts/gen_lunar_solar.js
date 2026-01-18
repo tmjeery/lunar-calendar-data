@@ -1,6 +1,6 @@
 const fs = require("fs");
 const path = require("path");
-const { Solar, Lunar } = require("lunar-javascript");
+const { Lunar } = require("lunar-javascript");
 
 const START_YEAR = new Date().getFullYear();
 const END_YEAR = START_YEAR + 5;
@@ -9,30 +9,33 @@ let result = {};
 
 for (let year = START_YEAR; year <= END_YEAR; year++) {
   result[year] = {};
-  
-  // 建议：遍历公历每一天，反查农历，这样绝对不会溢出或报错
-  // 或者修正农历逻辑：
-  for (let m = 1; m <= 12; m++) {
-    // 注意：这里需要遍历农历月
-    for (let d = 1; d <= 30; d++) {
+
+  // 农历一年通常 12 个月
+  for (let month = 1; month <= 12; month++) {
+    // 农历月最大 30 天，最小 29 天
+    for (let day = 1; day <= 30; day++) {
       try {
-        const lunar = Lunar.fromYmd(year, m, d);
-        if (lunar.isLeap()) continue; // 跳过闰月
+        // 尝试创建农历对象
+        const lunar = Lunar.fromYmd(year, month, day);
+        
+        // 排除闰月数据（根据你的原始需求）
+        if (lunar.getYear() !== year || lunar.isLeap()) continue;
 
         const solar = lunar.getSolar();
-        const key = `${String(m).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+        const key = `${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+        // 格式化公历日期为 YYYY-MM-DD
         const value = `${solar.getYear()}-${String(solar.getMonth()).padStart(2, "0")}-${String(solar.getDay()).padStart(2, "0")}`;
 
         result[year][key] = value;
       } catch (err) {
-        // 当 d=30 但农历月只有29天时，fromYmd 会报错，直接跳过即可
+        // 如果日期不存在（比如小月没有30号），会自动跳过
         continue;
       }
     }
   }
 }
 
-// 修正路径：直接写入命令执行时所在的根目录
+// 确保写入路径正确（GitHub Action 环境下 process.cwd() 指向项目根目录）
 const OUTFILE = path.join(process.cwd(), "lunar_solar.json");
 fs.writeFileSync(OUTFILE, JSON.stringify(result, null, 2), "utf-8");
-console.log(`✅ 已生成：${OUTFILE}`);
+console.log(`✅ 成功生成数据到: ${OUTFILE}`);
