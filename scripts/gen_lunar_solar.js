@@ -22,25 +22,30 @@ for (let y = START_YEAR; y <= END_YEAR; y++) {
 let startDate = new Date(`${START_YEAR}-01-01`);
 let endDate = new Date(`${END_YEAR + 1}-03-01`); 
 
+
 for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
   const solar = Solar.fromDate(d);
   const lunar = solar.getLunar();
   
-  const lYear = lunar.getYear();   // 农历年
-  const lMonth = lunar.getMonth(); // 农历月 (负数为闰月)
-  const lDay = lunar.getDay();     // 农历日
+  const lYear = lunar.getYear(); 
+  const lMonth = lunar.getMonth(); // 关键：lunar-javascript 中，闰月返回负数，例如闰四月返回 -4
+  const lDay = lunar.getDay();
 
-  // 3. 只有当这个农历日期属于我们预设的年份范围，且不是闰月时才记录
   if (result[lYear]) {
-    if (lMonth > 0) {
-      const key = `${String(lMonth).padStart(2, "0")}-${String(lDay).padStart(2, "0")}`;
-      const value = `${solar.getYear()}-${String(solar.getMonth()).padStart(2, "0")}-${String(solar.getDay()).padStart(2, "0")}`;
-      
-      // 这里的 lYear 确保了即便公历是 2026，数据也会被存入 2025 的农历对象中
-      result[lYear][key] = value;
-    }
+    // 构造 Key
+    let monthStr = String(Math.abs(lMonth)).padStart(2, "0");
+    let dayStr = String(lDay).padStart(2, "0");
+    
+    // 如果是闰月，在前面加个 'R' (表示 Run)
+    const key = (lMonth < 0 ? `R${monthStr}` : monthStr) + `-${dayStr}`;
+    
+    const value = solar.toYmd(); // 获取 YYYY-MM-DD 格式
+    
+    result[lYear][key] = value;
   }
 }
+
+
 
 // 4. 写入文件
 const OUTFILE = path.join(process.cwd(), "lunar_solar.json");
